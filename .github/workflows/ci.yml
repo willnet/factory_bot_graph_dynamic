@@ -56,3 +56,16 @@ jobs:
         with:
           advanced-security: false
           annotations: true
+
+  test-success:
+    name: All tests passed
+    needs: [test, zizmor]
+    # Always finish this required check, including when a dependency fails or skips.
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Verify required CI results
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<< "$NEEDS_JSON"
